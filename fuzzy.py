@@ -18,24 +18,23 @@ class Fuzzy:
         return np.exp(exponent)
 
     @staticmethod
-    def trapezoidal_membership_function(x_values, a, b, c, d):
-        assert a <= b and b <= c and c <= d, 'abcd requires the four elements a <= b <= c <= d.'
+    def trapezoidal_membership_function(x, a, b, c, d):
+        if x <= a or x >= d:
+            # Outside the trapezoid, membership is 0
+            return 0.0
+        elif a < x <= b:
+            # Rising slope
+            return (x - a) / (b - a)
+        elif b < x <= c:
+            # Flat top
+            return 1.0
+        elif c < x <= d:
+            # Falling slope
+            return (d - x) / (d - c)
+        else:
+            # Should not reach here
+            return 0.0
 
-        y = np.ones(len(x_values))
-
-        idx = np.nonzero(x_values <= b)[0]
-        y[idx] = np.maximum(0, np.minimum((x_values[idx] - a) / (b - a), 1))
-
-        idx = np.nonzero(x_values >= c)[0]
-        y[idx] = np.maximum(0, np.minimum((d - x_values[idx]) / (d - c), 1))
-
-        idx = np.nonzero(x_values < a)[0]
-        y[idx] = np.zeros(len(idx))
-
-        idx = np.nonzero(x_values > d)[0]
-        y[idx] = np.zeros(len(idx))
-
-        return y
 
     @staticmethod
     def defuzz_centroid(x_values, membership_values):
@@ -55,7 +54,7 @@ class Fuzzy:
             membership_values = self.gaussian_membership_function(x_values, *params)
             title = 'Gaussian Membership Function'
         elif function_name == 'trapezoidal':
-            membership_values = self.trapezoidal_membership_function(x_values, *params)
+            membership_values = [self.trapezoidal_membership_function(x, *params) for x in x_values]
             title = 'Trapezoidal Membership Function'
         else:
             raise ValueError("Invalid function_name. Use 'triangular', 'gaussian', or 'trapezoidal'.")
