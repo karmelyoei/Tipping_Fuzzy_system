@@ -20,6 +20,9 @@ Install dependencies using:
 ```bash
 pip install numpy  matplotlib
 ```
+
+Please run main file which is the implementation of the fuzzy system from scratch!
+
 ## License
 This project is licensed under the MIT License.
 

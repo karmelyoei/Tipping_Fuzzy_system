@@ -1,47 +1,95 @@
 import numpy as np
-import skfuzzy as fuzz
-from skfuzzy import control as ctrl
+from control import Control
+from fuzzy import Fuzzy
 import matplotlib.pyplot as plt
 
-# Input variables
-service = ctrl.Antecedent(np.arange(0, 11, 1), 'service')
-food = ctrl.Antecedent(np.arange(0, 11, 1), 'food')
-tip = ctrl.Consequent(np.arange(0, 31, 1), 'tip')
+# Build the tipping system
+control_system = Control()
 
-# Membership functions
-service['poor'] = fuzz.gaussmf(service.universe, 0, 1.69)
-service['good'] = fuzz.gaussmf(service.universe, 5, 1.699)
-service['excellent'] = fuzz.gaussmf(service.universe, 10, 1.69)
+fuzzy_system = Fuzzy()
 
-food['rancid'] = fuzz.trapmf(food.universe, [0, 0, 3, 6])
-food['delicious'] = fuzz.trapmf(food.universe, [4, 7, 10, 10])
+service_poor = fuzzy_system.run('gaussian', np.arange(0, 11, 0.1), (0, 1.699))
+service_good = fuzzy_system.run('gaussian',np.arange(0, 11, 0.1), (5, 1.699))
+service_excellent = fuzzy_system.run('gaussian', np.arange(0, 11, 0.1), (10, 1.699))
 
-tip['cheap'] = fuzz.trimf(tip.universe, [0, 5, 10])
-tip['average'] = fuzz.trimf(tip.universe, [10, 15, 20])
-tip['generous'] = fuzz.trimf(tip.universe, [20, 25, 30])
+# Plot all fuzzy sets on the same graph
+plt.plot(np.arange(0, 11, 0.1), service_poor, label='Service Poor')
+plt.plot(np.arange(0, 11, 0.1), service_good, label='Service Good')
+plt.plot(np.arange(0, 11, 0.1), service_excellent, label='Service Excellent')
+
+# Add labels and legend
+plt.xlabel('X-axis Label')
+plt.ylabel('Membership Value')
+plt.title('Fuzzy Sets for Service')
+plt.legend()
+
+# Show the plot
+plt.show()
+
+food_rancid = fuzzy_system.run('trapezoidal', np.arange(0, 11, 0.1), (0, 0, 3, 6))
+food_delicious = fuzzy_system.run('trapezoidal', np.arange(0, 11, 0.1), (4, 7, 10, 10))
+
+# Plot only food fuzzy sets on the same graph
+plt.plot(np.arange(0, 11, 0.1), food_rancid, label='Food Rancid')
+plt.plot(np.arange(0, 11, 0.1), food_delicious, label='Food Delicious')
+
+# Add labels and legend
+plt.xlabel('X-axis Label')
+plt.ylabel('Membership Value')
+plt.title('Fuzzy Sets for Food')
+plt.legend()
+
+# Show the plot
+plt.show()
+
+tip_cheap = fuzzy_system.run('triangular', np.arange(0, 31, 0.1), (0,5,10))
+tip_average = fuzzy_system.run('triangular', np.arange(0, 31, 0.1), (10,15,20))
+tip_generous = fuzzy_system.run('triangular', np.arange(0, 31, 0.1), (20,25,30))
+
+tip_universe = np.arange(0, 31, 0.1)
+# Plot the membership functions
+plt.plot(tip_universe, tip_cheap, label='Cheap')
+plt.plot(tip_universe, tip_average, label='Average')
+plt.plot(tip_universe, tip_generous, label='Generous')
+
+# Add labels and legend
+plt.xlabel('Tip Value')
+plt.ylabel('Membership Value')
+plt.title('Fuzzy Sets for Tip')
+plt.legend()
+
+# Show the plot
+plt.show()
+
+# Add antecedents (input variables) and consequent (output variable) to the control system
+control_system.add_antecedent('service','poor', service_poor )
+control_system.add_antecedent('service', 'good',service_good )
+control_system.add_antecedent('service', 'excellent',service_excellent )
 
 
-# Rules
-rule1 = ctrl.Rule(service['poor'] | food['rancid'], tip['cheap'])
-rule2 = ctrl.Rule(service['good'], tip['average'])
-rule3 = ctrl.Rule(service['excellent'] | food['delicious'], tip['generous'])
+control_system.add_antecedent('food', 'rancid', food_rancid)
+control_system.add_antecedent('food', 'delicious', food_delicious)
 
-# Fuzzy system
-tipping_ctrl = ctrl.ControlSystem([rule1, rule2, rule3])
-tipping = ctrl.ControlSystemSimulation(tipping_ctrl)
 
-# Example input
-tipping.input['service'] = 6
-tipping.input['food'] = 8
+control_system.add_consequent('tip','cheap', tip_cheap)
+control_system.add_consequent('tip','average', tip_average)
+control_system.add_consequent('tip','generous', tip_generous)
 
+
+# Add fuzzy rules to the control system
+# Rule 1: if service is poor or food is rancid, then tip is cheap
+control_system.add_rule((['service', 'poor'], ['food', 'rancid']), 'cheap', 'or')
+# Rule 2: if service is good, then tip is average
+control_system.add_rule((['service', 'good'], [None,None]), 'average', None)
+# Rule 3: if service is excellent or food is delicious, then tip is generous
+control_system.add_rule((['service', 'excellent'], ['food', 'delicious']), 'generous', 'or')
+
+
+# Set input values
+input_values = {'service': 8, 'food': 6}
+num_points = 10
 # Compute the result
-tipping.compute()
+output_value = control_system.compute(input_values, fuzzy_system, num_points)
 
 # Print the result
-print("Tip:", tipping.output['tip'])
-
-# Plot the membership functions and the input/output
-service.view()
-food.view()
-tip.view(sim=tipping)
-plt.show()
+print("Predicted Tip:", output_value)
