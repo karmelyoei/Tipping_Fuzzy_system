@@ -77,13 +77,42 @@ class Control:
         if not input_values or not self.consequent:
             raise ValueError("Input values or consequent not set.")
 
-        # Aggregate rules
-        x_values = np.arange(len(next(iter(self.consequent.values()))))
-        aggregated_result = self.aggregate_rules(x_values)
+        service_poor,service_good,service_excellent,food_rancid,food_delicious = 0,0,0,0,0
+        for key, value in input_values.items():
+            if key == "service":
+                # Evaluate the membership functions for the chosen service and food values
+                service_poor = fuzz.gaussian_membership_function(value, 0, 1.699)
+                service_good = fuzz.gaussian_membership_function(value, 5, 1.699)
+                service_excellent = fuzz.gaussian_membership_function(value, 10, 1.699)
 
-        # Compute the result using a simple centroid defuzzification
-        output_value = fuzz.defuzz_centroid(x_values, aggregated_result, len(aggregated_result))
+            elif key == "food":
+                food_rancid = fuzz.trapezoidal_membership_function(value, 0, 0, 3, 6)
+                food_delicious = fuzz.trapezoidal_membership_function(value, 4, 7, 10, 10)
 
-        return output_value
+        # Apply the fuzzy rules
+        # Rule 1: if service is poor or food is rancid, then tip is cheap
+        tip_cheap = np.fmax(service_poor, food_rancid)
+
+        # Rule 2: if service is good, then tip is average
+        tip_average = service_good
+
+        # Rule 3: if service is excellent or food is delicious, then tip is generous
+        tip_generous = np.fmax(service_excellent, food_delicious)
+
+        tip_cheap_center = (0+ 10) / 2
+        tip_average_center = (10 + 20) / 2
+        tip_generous_center = (20 + 30) / 2
+
+        # Calculate the center of gravity
+        sample_cheap = tip_cheap_center - 1
+        sample2_cheap = tip_cheap_center + 1
+        sample1_average = tip_average_center -1
+        sample2_average = tip_average_center + 1
+        sample1_generous = tip_generous_center -1
+        sample2_generous = tip_generous_center +1
+
+        center_of_gravity = (((sample_cheap + sample2_cheap + tip_cheap_center) * tip_cheap) + ((sample1_generous + sample2_generous + tip_generous_center) * tip_generous) + ((sample1_average + sample2_average + tip_average_center) * tip_average)) / ((3 * tip_average) + (3 * tip_generous) + (3 * tip_cheap))
+
+        return center_of_gravity
 
 
