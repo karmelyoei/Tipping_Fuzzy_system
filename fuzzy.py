@@ -7,15 +7,18 @@ class Fuzzy:
 
     @staticmethod
     def triangular_membership_function(x, a, b, c):
-        epsilon = 1e-10  # Small epsilon to avoid division by zero
-        return (
-                np.clip((x - a) / (b - a + epsilon), 0, 1) * (a < x) * (x <= b) +
-                np.clip((c - x) / (c - b + epsilon), 0, 1) * (b < x) * (x <= c)
-        )
+        if x <= a or x >= c:
+            return 0
+        elif a < x <= b:
+            return (x - a) / (b - a)
+        elif b < x <= c:
+            return (c - x) / (c - b)
+        else:
+            return 0
+
     @staticmethod
     def gaussian_membership_function(x, mean, sigma):
-        exponent = -0.5 * ((x - mean) / (sigma + 1e-10)) ** 2  # Add a small epsilon to avoid division by zero
-        return np.exp(exponent)
+        return np.exp(-0.5 * ((x - mean) / sigma) ** 2)
 
     @staticmethod
     def trapezoidal_membership_function(x, a, b, c, d):
@@ -37,9 +40,9 @@ class Fuzzy:
 
 
     @staticmethod
-    def defuzz_centroid(x_values, membership_values):
-        numerator = np.sum(x_values * membership_values)
-        denominator = np.sum(membership_values)
+    def defuzz_centroid(x_values, membership_values, num_points):
+        numerator = np.sum(x_values * membership_values * (num_points - 1 + x_values))
+        denominator = np.sum(membership_values * (num_points - 1 + x_values))
 
         if denominator == 0:
             return np.nan  # Handle division by zero
@@ -48,10 +51,10 @@ class Fuzzy:
 
     def run(self, function_name, x_values, params):
         if function_name == 'triangular':
-            membership_values = self.triangular_membership_function(x_values, *params)
+            membership_values = [self.triangular_membership_function(x, *params) for x in x_values]
             title = 'Triangular Membership Function'
         elif function_name == 'gaussian':
-            membership_values = self.gaussian_membership_function(x_values, *params)
+            membership_values = [self.gaussian_membership_function(x, *params) for x in x_values]
             title = 'Gaussian Membership Function'
         elif function_name == 'trapezoidal':
             membership_values = [self.trapezoidal_membership_function(x, *params) for x in x_values]

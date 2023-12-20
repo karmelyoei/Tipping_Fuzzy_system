@@ -8,14 +8,14 @@ control_system = Control()
 
 fuzzy_system = Fuzzy()
 
-service_poor = fuzzy_system.run('gaussian', np.linspace(0, 10, 100), (0, 1.699))
-service_good = fuzzy_system.run('gaussian', np.linspace(0, 10, 100), (5, 1.699))
-service_excellent = fuzzy_system.run('gaussian', np.linspace(0, 10, 100), (10, 1.699))
+service_poor = fuzzy_system.run('gaussian', np.arange(0, 11, 0.1), (0, 1.699))
+service_good = fuzzy_system.run('gaussian',np.arange(0, 11, 0.1), (5, 1.699))
+service_excellent = fuzzy_system.run('gaussian', np.arange(0, 11, 0.1), (10, 1.699))
 
 # Plot all fuzzy sets on the same graph
-plt.plot(np.linspace(0, 10, 100), service_poor, label='Service Poor')
-plt.plot(np.linspace(0, 10, 100), service_good, label='Service Good')
-plt.plot(np.linspace(0, 10, 100), service_excellent, label='Service Excellent')
+plt.plot(np.arange(0, 11, 0.1), service_poor, label='Service Poor')
+plt.plot(np.arange(0, 11, 0.1), service_good, label='Service Good')
+plt.plot(np.arange(0, 11, 0.1), service_excellent, label='Service Excellent')
 
 # Add labels and legend
 plt.xlabel('X-axis Label')
@@ -26,12 +26,12 @@ plt.legend()
 # Show the plot
 plt.show()
 
-food_rancid = fuzzy_system.run('trapezoidal', np.linspace(0, 10, 100), (0, 0, 3, 6))
-food_delicious = fuzzy_system.run('trapezoidal', np.linspace(0, 10, 100), (4, 7, 10, 10))
+food_rancid = fuzzy_system.run('trapezoidal', np.arange(0, 11, 0.1), (0, 0, 3, 6))
+food_delicious = fuzzy_system.run('trapezoidal', np.arange(0, 11, 0.1), (4, 7, 10, 10))
 
 # Plot only food fuzzy sets on the same graph
-plt.plot(np.linspace(0, 10, 100), food_rancid, label='Food Rancid')
-plt.plot(np.linspace(0, 10, 100), food_delicious, label='Food Delicious')
+plt.plot(np.arange(0, 11, 0.1), food_rancid, label='Food Rancid')
+plt.plot(np.arange(0, 11, 0.1), food_delicious, label='Food Delicious')
 
 # Add labels and legend
 plt.xlabel('X-axis Label')
@@ -42,11 +42,11 @@ plt.legend()
 # Show the plot
 plt.show()
 
-tip_cheap = fuzzy_system.run('triangular', np.linspace(0, 30, 100), (0,5,10))
-tip_average = fuzzy_system.run('triangular', np.linspace(0, 30, 100), (10,15,20))
-tip_generous = fuzzy_system.run('triangular', np.linspace(0, 30, 100), (20,25,30))
+tip_cheap = fuzzy_system.run('triangular', np.arange(0, 31, 0.1), (0,5,10))
+tip_average = fuzzy_system.run('triangular', np.arange(0, 31, 0.1), (10,15,20))
+tip_generous = fuzzy_system.run('triangular', np.arange(0, 31, 0.1), (20,25,30))
 
-tip_universe = np.linspace(0, 30, 100)
+tip_universe = np.arange(0, 31, 0.1)
 # Plot the membership functions
 plt.plot(tip_universe, tip_cheap, label='Cheap')
 plt.plot(tip_universe, tip_average, label='Average')
@@ -86,10 +86,10 @@ control_system.add_rule((['service', 'excellent'], ['food', 'delicious']), 'gene
 
 
 # Set input values
-input_values = {'service': 6, 'food': 8}
-
+input_values = {'service': 8, 'food': 6}
+num_points = 10
 # Compute the result
-output_value = control_system.compute(input_values, fuzzy_system)
+output_value = control_system.compute(input_values, fuzzy_system, num_points)
 
 # Print the result
 print("Predicted Tip:", output_value)

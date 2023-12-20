@@ -56,27 +56,33 @@ class Control:
         aggregated_result = np.zeros_like(x_values, dtype=float)
 
         for rule in self.rules:
+            rule_result = np.ones_like(x_values, dtype=float)  # Initialize with ones for MAX operation
+
             for antecedent_name, term in rule['antecedents']:
                 if antecedent_name is None or term is None:
                     continue
-                antecedent_values = [
-                    np.interp(x_values, np.arange(len(self.antecedents[antecedent_name][term])), self.antecedents[antecedent_name][term])
-                ]
-                rule_result = self.evaluate_rule(antecedent_values, rule['operator'])
-                aggregated_result = np.maximum(aggregated_result, rule_result)
+
+                antecedent_values = np.interp(
+                    x_values,
+                    np.arange(len(self.antecedents[antecedent_name][term])),
+                    self.antecedents[antecedent_name][term]
+                )
+                rule_result = np.minimum(rule_result, antecedent_values)  # Use MIN for AND-like connectives
+
+            aggregated_result = np.maximum(aggregated_result, rule_result)  # Use MAX for OR-like connectives
 
         return aggregated_result
 
-    def compute(self, input_values, fuzz):
+    def compute(self, input_values, fuzz, num_points):
         if not input_values or not self.consequent:
             raise ValueError("Input values or consequent not set.")
 
-        x_values = np.arange(len(next(iter(self.consequent .values()))))
+        # Aggregate rules
+        x_values = np.arange(len(next(iter(self.consequent.values()))))
         aggregated_result = self.aggregate_rules(x_values)
 
         # Compute the result using a simple centroid defuzzification
-        output_value = fuzz.defuzz_centroid(x_values, aggregated_result)
-        self.consequent['output'] = output_value
+        output_value = fuzz.defuzz_centroid(x_values, aggregated_result, len(aggregated_result))
 
         return output_value
 
