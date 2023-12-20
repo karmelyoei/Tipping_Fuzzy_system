@@ -182,8 +182,8 @@ print("Tip:", tip_result)
 ##############
 #Testing
 # Choose specific values for service and food
-service_value = 7
-food_value = 5
+service_value = 6
+food_value = 8
 
 # Evaluate the membership functions for the chosen service and food values
 service_membership_value = gaussian_mf(service_value, 5, 1.699)

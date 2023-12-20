@@ -1,30 +1,65 @@
 import numpy as np
 from control import Control
 from fuzzy import Fuzzy
+import matplotlib.pyplot as plt
 
 # Build the tipping system
 control_system = Control()
 
-# Define input and output linguistic terms and membership functions
-service_terms = {'poor': [0, 1.699, 0], 'good': [1.699, 5, 0], 'excellent': [5, 10, 0]}
-food_terms = {'rancid': [0, 0, 3, 6], 'delicious': [4, 7, 10, 10]}
-tip_terms = {'cheap': [0, 5, 10], 'average': [10, 15, 20], 'generous': [20, 25, 30]}
-
 fuzzy_system = Fuzzy()
 
-service_poor = fuzzy_system.run('gaussian', np.linspace(0, 10, 10), (1.699, 0))
-service_good = fuzzy_system.run('gaussian', np.linspace(0, 10, 10), (1.699, 5))
-service_excellent = fuzzy_system.run('gaussian', np.linspace(0, 10, 10), (1.699, 10))
+service_poor = fuzzy_system.run('gaussian', np.linspace(0, 10, 10), (0, 1.699))
+service_good = fuzzy_system.run('gaussian', np.linspace(0, 10, 10), (5, 1.699))
+service_excellent = fuzzy_system.run('gaussian', np.linspace(0, 10, 10), (10, 1.699))
 
+# Plot all fuzzy sets on the same graph
+plt.plot(np.linspace(0, 10, 10), service_poor, label='Service Poor')
+plt.plot(np.linspace(0, 10, 10), service_good, label='Service Good')
+plt.plot(np.linspace(0, 10, 10), service_excellent, label='Service Excellent')
+
+# Add labels and legend
+plt.xlabel('X-axis Label')
+plt.ylabel('Membership Value')
+plt.title('Fuzzy Sets for Service')
+plt.legend()
+
+# Show the plot
+plt.show()
 
 food_rancid = fuzzy_system.run('trapezoidal', np.linspace(0, 10, 10), (0, 0, 3, 6))
 food_delicious = fuzzy_system.run('trapezoidal', np.linspace(0, 10, 10), (4, 7, 10, 10))
 
+# Plot only food fuzzy sets on the same graph
+plt.plot(np.linspace(0, 10, 10), food_rancid, label='Food Rancid')
+plt.plot(np.linspace(0, 10, 10), food_delicious, label='Food Delicious')
+
+# Add labels and legend
+plt.xlabel('X-axis Label')
+plt.ylabel('Membership Value')
+plt.title('Fuzzy Sets for Food')
+plt.legend()
+
+# Show the plot
+plt.show()
 
 tip_cheap = fuzzy_system.run('triangular', np.linspace(0, 30, 10), (0,5,10))
 tip_average = fuzzy_system.run('triangular', np.linspace(0, 30, 10), (10,15,20))
 tip_generous = fuzzy_system.run('triangular', np.linspace(0, 30, 10), (20,25,30))
 
+tip_universe = np.linspace(0, 30, 10)
+# Plot the membership functions
+plt.plot(tip_universe, tip_cheap, label='Cheap')
+plt.plot(tip_universe, tip_average, label='Average')
+plt.plot(tip_universe, tip_generous, label='Generous')
+
+# Add labels and legend
+plt.xlabel('Tip Value')
+plt.ylabel('Membership Value')
+plt.title('Fuzzy Sets for Tip')
+plt.legend()
+
+# Show the plot
+plt.show()
 
 # Add antecedents (input variables) and consequent (output variable) to the control system
 control_system.add_antecedent('service','poor', service_poor )

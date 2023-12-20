@@ -20,6 +20,7 @@ tip['cheap'] = fuzz.trimf(tip.universe, [0, 5, 10])
 tip['average'] = fuzz.trimf(tip.universe, [10, 15, 20])
 tip['generous'] = fuzz.trimf(tip.universe, [20, 25, 30])
 
+
 # Rules
 rule1 = ctrl.Rule(service['poor'] | food['rancid'], tip['cheap'])
 rule2 = ctrl.Rule(service['good'], tip['average'])

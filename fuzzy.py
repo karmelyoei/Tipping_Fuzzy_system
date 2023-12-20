@@ -18,13 +18,24 @@ class Fuzzy:
         return np.exp(exponent)
 
     @staticmethod
-    def trapezoidal_membership_function(x, a, b, c, d):
-        epsilon = 1e-10  # Small epsilon to avoid division by zero
-        return (
-                np.clip((x - a) / (b - a + epsilon), 0, 1) * (a < x) * (x <= b) +
-                1.0 * (b < x) * (x <= c) +
-                np.clip((d - x) / (d - c + epsilon), 0, 1) * (c < x) * (x <= d)
-        )
+    def trapezoidal_membership_function(x_values, a, b, c, d):
+        assert a <= b and b <= c and c <= d, 'abcd requires the four elements a <= b <= c <= d.'
+
+        y = np.ones(len(x_values))
+
+        idx = np.nonzero(x_values <= b)[0]
+        y[idx] = np.maximum(0, np.minimum((x_values[idx] - a) / (b - a), 1))
+
+        idx = np.nonzero(x_values >= c)[0]
+        y[idx] = np.maximum(0, np.minimum((d - x_values[idx]) / (d - c), 1))
+
+        idx = np.nonzero(x_values < a)[0]
+        y[idx] = np.zeros(len(idx))
+
+        idx = np.nonzero(x_values > d)[0]
+        y[idx] = np.zeros(len(idx))
+
+        return y
 
     @staticmethod
     def defuzz_centroid(x_values, membership_values):
