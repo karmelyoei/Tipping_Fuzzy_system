@@ -1,5 +1,6 @@
 import numpy as np
-import skfuzzy as fuzz
+from fuzzy import defuzz_centroid
+
 import matplotlib.pyplot as plt
 
 class Control:
@@ -7,17 +8,12 @@ class Control:
         self.antecedents = {}
         self.consequent = None
         self.rules = []
-        self.input_values = {}
 
-    def add_antecedent(self, name, universe, linguistic_terms):
-        self.antecedents[name] = fuzz.Antecedent(universe, name)
-        for term, params in linguistic_terms.items():
-            self.antecedents[name][term] = fuzz.gaussmf(universe, *params)
+    def add_antecedent(self, name, term, universe):
+        self.antecedents[name][term] = universe
 
-    def add_consequent(self, name, universe, linguistic_terms):
-        self.consequent = fuzz.Consequent(universe, name)
-        for term, params in linguistic_terms.items():
-            self.consequent[term] = fuzz.gaussmf(universe, *params)
+    def add_consequent(self, name,term, universe):
+            self.consequent[term] = universe
 
     @staticmethod
     def fuzzy_or(membership_values_list):
@@ -57,8 +53,8 @@ class Control:
 
         return aggregated_result
 
-    def compute(self):
-        if not self.input_values or not self.consequent:
+    def compute(self, input_values, fuzz):
+        if not input_values or not self.consequent:
             raise ValueError("Input values or consequent not set.")
 
         x_values = np.arange(len(self.consequent.universe))

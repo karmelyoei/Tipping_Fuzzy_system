@@ -20,6 +20,16 @@ class Fuzzy:
                 1.0 * (b < x) * (x <= c) +
                 np.clip((d - x) / (d - c), 0, 1) * (c < x) * (x <= d))
 
+    @staticmethod
+    def defuzz_centroid(x_values, membership_values):
+        numerator = np.sum(x_values * membership_values)
+        denominator = np.sum(membership_values)
+
+        if denominator == 0:
+            return np.nan  # Handle division by zero
+
+        return numerator / denominator
+
     def run(self, function_name, x_values, params):
         if function_name == 'triangular':
             membership_values = self.triangular_membership_function(x_values, *params)
@@ -42,14 +52,4 @@ class Fuzzy:
         plt.grid(True)
         plt.show()
 
-# Example usage:
-fuzzy_system = Fuzzy()
 
-# Triangular membership function
-fuzzy_system.run('triangular', np.linspace(0, 10, 1000), (2, 5, 8))
-
-# Gaussian membership function
-fuzzy_system.run('gaussian', np.linspace(0, 10, 1000), (5, 2))
-
-# Trapezoidal membership function
-fuzzy_system.run('trapezoidal', np.linspace(0, 10, 1000), (2, 4, 7, 9))
