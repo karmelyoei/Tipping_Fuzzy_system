@@ -2,7 +2,6 @@ import numpy as np
 from control import Control
 from fuzzy import Fuzzy
 
-
 # Build the tipping system
 control_system = Control()
 
@@ -42,11 +41,13 @@ control_system.add_consequent('tip','average', tip_average)
 control_system.add_consequent('tip','generous', tip_generous)
 
 
-
 # Add fuzzy rules to the control system
-control_system.add_rule(['service', 'food'], 'cheap', 'or')
-control_system.add_rule(['service'], 'average', None)
-control_system.add_rule(['service', 'food'], 'generous', 'or')
+# Rule 1: if service is poor or food is rancid, then tip is cheap
+control_system.add_rule((['service', 'poor'], ['food', 'rancid']), 'cheap', 'or')
+# Rule 2: if service is good, then tip is average
+control_system.add_rule((['service', 'good'], [None,None]), 'average', None)
+# Rule 3: if service is excellent or food is delicious, then tip is generous
+control_system.add_rule((['service', 'excellent'], ['food', 'delicious']), 'generous', 'or')
 
 
 # Set input values

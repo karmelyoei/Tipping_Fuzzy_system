@@ -7,18 +7,24 @@ class Fuzzy:
 
     @staticmethod
     def triangular_membership_function(x, a, b, c):
-        return np.clip((x - a) / (b - a), 0, 1) * (a < x) * (x <= b) + np.clip((c - x) / (c - b), 0, 1) * (b < x) * (x <= c)
-
+        epsilon = 1e-10  # Small epsilon to avoid division by zero
+        return (
+                np.clip((x - a) / (b - a + epsilon), 0, 1) * (a < x) * (x <= b) +
+                np.clip((c - x) / (c - b + epsilon), 0, 1) * (b < x) * (x <= c)
+        )
     @staticmethod
     def gaussian_membership_function(x, mean, sigma):
-        exponent = -0.5 * ((x - mean) / sigma) ** 2
+        exponent = -0.5 * ((x - mean) / (sigma + 1e-10)) ** 2  # Add a small epsilon to avoid division by zero
         return np.exp(exponent)
 
     @staticmethod
     def trapezoidal_membership_function(x, a, b, c, d):
-        return (np.clip((x - a) / (b - a), 0, 1) * (a < x) * (x <= b) +
+        epsilon = 1e-10  # Small epsilon to avoid division by zero
+        return (
+                np.clip((x - a) / (b - a + epsilon), 0, 1) * (a < x) * (x <= b) +
                 1.0 * (b < x) * (x <= c) +
-                np.clip((d - x) / (d - c), 0, 1) * (c < x) * (x <= d))
+                np.clip((d - x) / (d - c + epsilon), 0, 1) * (c < x) * (x <= d)
+        )
 
     @staticmethod
     def defuzz_centroid(x_values, membership_values):
@@ -51,5 +57,7 @@ class Fuzzy:
         plt.legend()
         plt.grid(True)
         plt.show()
+
+        return membership_values
 
 

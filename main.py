@@ -30,7 +30,7 @@ tipping_ctrl = ctrl.ControlSystem([rule1, rule2, rule3])
 tipping = ctrl.ControlSystemSimulation(tipping_ctrl)
 
 # Example input
-tipping.input['service'] = 3
+tipping.input['service'] = 6
 tipping.input['food'] = 8
 
 # Compute the result
